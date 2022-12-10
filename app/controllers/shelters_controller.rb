@@ -7,6 +7,7 @@ class SheltersController < ApplicationController
     else
       @shelters = Shelter.order_by_alpha_desc
     end
+    @pending_shelters = Shelter.pending
   end
 
   def pets
