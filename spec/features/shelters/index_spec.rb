@@ -5,9 +5,9 @@ RSpec.describe 'the shelters index' do
     @shelter_1 = Shelter.create(name: 'Aurora shelter', city: 'Aurora, CO', foster_program: false, rank: 9)
     @shelter_2 = Shelter.create(name: 'RGV animal shelter', city: 'Harlingen, TX', foster_program: false, rank: 5)
     @shelter_3 = Shelter.create(name: 'Fancy pets of Colorado', city: 'Denver, CO', foster_program: true, rank: 10)
-    @shelter_1.pets.create(name: 'Mr. Pirate', breed: 'tuxedo shorthair', age: 5, adoptable: true)
-    @shelter_1.pets.create(name: 'Clawdia', breed: 'shorthair', age: 3, adoptable: true)
-    @shelter_3.pets.create(name: 'Lucille Bald', breed: 'sphynx', age: 8, adoptable: true)
+    @pet1 = @shelter_1.pets.create(name: 'Mr. Pirate', breed: 'tuxedo shorthair', age: 5, adoptable: true)
+    @pet2 = @shelter_1.pets.create(name: 'Clawdia', breed: 'shorthair', age: 3, adoptable: true)
+    @pet3 = @shelter_3.pets.create(name: 'Lucille Bald', breed: 'sphynx', age: 8, adoptable: true)
   end
 
   it 'lists all the shelter names' do
@@ -116,4 +116,40 @@ RSpec.describe 'the shelters index' do
     expect(page).to have_content(@shelter_2.name)
     expect(page).to_not have_content(@shelter_1.name)
   end
+
+  
+  it 'has a section for shelters with pending applications' do
+    app1 = Application.create!(
+      name: 'Frank Sinatra',
+      street_address: '69 Sinatra Way',
+      city: 'Nashville',
+      state: 'Tennessee', zip_code: '69420',
+      status: 'Pending'
+    )
+    
+    app2 = Application.create!(
+      name: 'James Bond',
+      street_address: '007 Licenced Ave',
+      city: 'New York',
+      state: 'New York', zip_code: '77007',
+      status: 'Pending'
+    )
+    
+    PetApplication.create!(pet: @pet1, application: app1)
+    PetApplication.create!(pet: @pet3, application: app2)
+    
+    visit "/shelters"
+
+    within "pending-apps" do
+      expect(page).to have_content("Shelters with Pending Applications")
+
+      expect(page).to have_content(@shelter_1.name)
+      expect(page).to have_content(@shelter_3.name)
+      expect(page).not_to have_content(@shelter_2.name)
+    end
+  end
+  # As a visitor
+  # When I visit the admin shelter index ('/admin/shelters')
+  # Then I see a section for "Shelter's with Pending Applications"
+  # And in this section I see the name of every shelter that has a pending application
 end
