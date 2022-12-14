@@ -20,16 +20,12 @@ class Application < ApplicationRecord
     end
   end
 
-  def check_status
-    pet_applications.select(:status)
-  end
-
   def approved
-    check_status.to_a.count == check_status.where(status: 'true').count
+    pet_applications.count == pet_applications.where(status: 'true').count
   end
 
   def rejected
-    check_status.where(status: 'false').count >= 1 && check_status.where(status: nil).count.zero?
+    pet_applications.where(status: 'false').count >= 1 && pet_applications.where(status: nil).count.zero?
   end
 
   def adopt_pets

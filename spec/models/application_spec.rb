@@ -23,5 +23,57 @@ RSpec.describe Application, type: :model do
         status: 'Pending'
       )
     end
+
+    it 'has a method to find an approved application based on pet id' do
+      PetApplication.create!(pet: @buster, application: @app1)
+      @app1.update!(status: "Approved")
+
+      expect(@app1.find_app_approved(@buster.id)).to eq(true)
+    end
+
+    it 'can determine if all pet_applications associated are approved' do
+      PetApplication.create!(pet: @buster, application: @app1)
+      PetApplication.create!(pet: @marlowe, application: @app1)
+      PetApplication.where(pet: @buster).update(status: "true")
+
+      expect(Application.find(@app1.id).approved).to eq(false)
+      PetApplication.where(pet: @marlowe).update(status: "true")
+   
+      expect(Application.find(@app1.id).approved).to eq(true)
+    end
+
+    it 'can determine if all pet_applications associated have a decision, and one is rejected' do
+      PetApplication.create!(pet: @buster, application: @app1)
+      PetApplication.create!(pet: @marlowe, application: @app1)
+      PetApplication.where(pet: @buster).update(status: "false")
+
+      expect(Application.find(@app1.id).rejected).to eq(false)
+      PetApplication.where(pet: @marlowe).update(status: "true")
+   
+      expect(Application.find(@app1.id).rejected).to eq(true)
+    end
+
+    it 'can update the status of the application once the pet_apps are decided' do
+      PetApplication.create!(pet: @buster, application: @app1)
+      PetApplication.create!(pet: @marlowe, application: @app1)
+      PetApplication.where(pet: @buster).update(status: "true")
+
+      expect(Application.find(@app1.id).approved).to eq(false)
+      PetApplication.where(pet: @marlowe).update(status: "true")
+      Application.find(@app1.id).status_update
+      expect(Application.find(@app1.id).status).to eq("Approved")
+    end
+
+    it 'can update with rejected once pet_apps are decided' do
+      PetApplication.create!(pet: @buster, application: @app1)
+      PetApplication.create!(pet: @marlowe, application: @app1)
+      PetApplication.where(pet: @buster).update(status: "false")
+
+      expect(Application.find(@app1.id).rejected).to eq(false)
+      PetApplication.where(pet: @marlowe).update(status: "true")
+
+      Application.find(@app1.id).status_update
+      expect(Application.find(@app1.id).status).to eq("Rejected")
+    end
   end
 end
