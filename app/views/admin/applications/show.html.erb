@@ -12,11 +12,11 @@
       <% end %>
     <% else %>
       <% if @application.find_app_approved(pet_app.pet.id) == false %>      
-        <%= render partial: 'pet_approval', locals: { pet_id: pet_app.pet.id } %>
+        <%= render partial: 'pet_approval', locals: { pet_id: pet_app.pet.id, approve: true, text: "Approve This Application" } %>
       <% else %>
         <%= 'This Pet has been Approved for Adoption' %>
       <% end %>
-      <%= render partial: 'pet_reject', locals: { pet_id: pet_app.pet.id } %>
+      <%= render partial: 'pet_approval', locals: { pet_id: pet_app.pet.id, approve: false, text: "Reject This Application" } %>
     <% end %>
   </div>
 <% end %>
